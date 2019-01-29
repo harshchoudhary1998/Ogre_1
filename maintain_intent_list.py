@@ -52,23 +52,35 @@ class Maintain:
                     data_list=self.__recent_search)
                 os.remove("recent_search.csv")
 
+            self.download(
+                "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/noti_action.csv",
+                "noti_action.csv")
+
             if not self.__noti_action:
                 for element in self.__noti_action:
                     i = 0
                     for intent_element in self.__intent_list:
                         if element[2] == intent_element[0]:  # match category
                             if element[3] == "Yes":
-                                if intent_elememnt[1] < 0:
-                                    intent_elememnt[1] += 1
-                            elif intent_elememnt[1] > -3:
-                                intent_elememnt[1] -= 1
+                                if intent_element[1] < 0:
+                                    intent_element[1] += 1
+                            elif intent_element[1] > -3:
+                                intent_element[1] -= 1
                             else:
                                 self.__intent_list.remove(i)
                         i += 1
+                self.__noti_action = []
+                self.write_and_upload(
+                    path="https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/noti_action.csv",
+                    upload_file="noti_action.csv",
+                    data_list=self.__noti_action)
+                os.remove("noti_action.csv")
 
-            self.download(
-                "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/noti_action.csv",
-                "noti_action.csv")
+            self.write_and_upload(
+                path="https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/intent_list.csv",
+                upload_file="intent_list.csv",
+                data_list=self.__intent_list)
+            os.remove("intent_list.csv")
 
     def download(self, path, save_as):
         r = requests.get(path)
