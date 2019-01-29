@@ -13,9 +13,10 @@ import requests
 
 
 class Decide:
-    __email_list = []
-    __intent_list = []
-    __token_ids = []
+    def __init__(self):
+        self.__email_list = []
+        self.__intent_list = []
+        self.__token_ids = []
 
     def whom_to_send(self, message, category):
         print(message, category)
