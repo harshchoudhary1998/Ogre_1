@@ -1,17 +1,23 @@
-import re
+import datetime
 
-x = re.compile("[0-9]")
-y = x.findall("Helllo02027719")
-z = 0
-for k in y:
-    z = z * 10 + int(k)
-print(z)
+cur_time = datetime.datetime.now()
+print(cur_time)
+print(cur_time.hour, cur_time.minute)
 
-with open("", 'r+') as f:
-    f.writelines()
-
-str1 = ""
-str1.join()
+# import re
+#
+# x = re.compile("[0-9]")
+# y = x.findall("Helllo02027719")
+# z = 0
+# for k in y:
+#     z = z * 10 + int(k)
+# print(z)
+#
+# with open("", 'r+') as f:
+#     f.writelines()
+#
+# str1 = ""
+# str1.join()
 # #import re
 # import math
 # print(math.isnan(4))

@@ -13,11 +13,13 @@ categoryies = {1: "Cloths",
                4: "Study related"}
 print(categoryies)
 category = int(input("Enter your category number: "))
+print("Enter validity time as hour then minute: ")
+validity = [int(input()), int(input())]
 
 if category in categoryies.keys():
     from decide_notification import Decide
 
     d = Decide()
-    d.whom_to_send(message=message, category=categoryies[category])
+    d.whom_to_send(message=message, category=categoryies[category], validity=validity)
 else:
     print("\n########Invalid category number.###########")
