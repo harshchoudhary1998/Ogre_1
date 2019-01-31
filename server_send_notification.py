@@ -37,23 +37,22 @@ while True:
 
     if go_ahead:
         with open(save_as, 'w') as fle:
-            fle.write(header)
+            fle.write(header + "\n")
         for i in data_list:
             i = i.split(",")
-            i[3] = i[3].split(":")
             print("This is i", i)
-            if (int(i[3][0]) == cur_time.hour) and (int(i[3][1]) < cur_time.minute + 3):
+            if (int(i[3].split(":")[0]) == cur_time.hour) and (int(i[3].split(":")[1]) < cur_time.minute + 3):
                 # send now and delete this row
                 print(i[0])  # print token id
                 try:
                     result = push_service.notify_single_device(i[0], str(i[2]), str(i[1]))
                     print(result)
-                except ConnectionError:
+                except:
                     print("Sorry! Firebase server has terminated connection with the mobile device.")
-                    print(ConnectionError)
+
             else:
                 with open(save_as, 'a') as fle:
-                    fle.write(",".join(i))
+                    fle.write(",".join(i) + "\n")
         # upload this file
         files = {'file': open(save_as, "rb")}
         response = requests.post(path, files=files)
