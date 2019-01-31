@@ -7,10 +7,10 @@
 """
 
 message = input("Enter message: ")
-categoryies = {1: "Cloths",
-               2: "Electronics",
-               3: "Beauty and cosmetic",
-               4: "Study related"}
+categoryies = {1: "Electronics",
+               2: "Lifestyle",
+               3: "HomeAppliances",
+               4: "Books"}
 print(categoryies)
 category = int(input("Enter your category number: "))
 print("Enter validity time as hour then minute: ")

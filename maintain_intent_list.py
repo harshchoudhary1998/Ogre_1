@@ -37,7 +37,9 @@ class Maintain:
             self.download(
                 "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/recent_search.csv",
                 "recent_search.csv")
-            if not self.__recent_search:
+            recent_search_header = self.__recent_search[0]
+            del self.__recent_search[0]  # remove header
+            if self.__recent_search:  # if list not empty
                 for element in self.__recent_search:
                     present = False
                     for intent_elememnt in self.__intent_list:
@@ -45,7 +47,7 @@ class Maintain:
                             present = True
                     if not present:
                         self.__intent_list.append([element[0], 0])
-                self.__recent_search = []
+                self.__recent_search = [recent_search_header]
                 self.write_and_upload(
                     path="https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/recent_search.csv",
                     upload_file="recent_search.csv",
@@ -56,20 +58,22 @@ class Maintain:
                 "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/noti_action.csv",
                 "noti_action.csv")
 
-            if not self.__noti_action:
+            noti_action_header = self.__noti_action[0]
+            del self.__noti_action[0]  # save header
+            if self.__noti_action:  # if list not empty
                 for element in self.__noti_action:
                     i = 0
                     for intent_element in self.__intent_list:
-                        if element[2] == intent_element[0]:  # match category
+                        if element[1] == intent_element[0]:  # match category
                             if element[3] == "Yes":
                                 if intent_element[1] < 0:
                                     intent_element[1] += 1
                             elif intent_element[1] > -3:
                                 intent_element[1] -= 1
                             else:
-                                self.__intent_list.remove(i)
+                                del self.__intent_list[i]  # remove value at index i
                         i += 1
-                self.__noti_action = []
+                self.__noti_action = [noti_action_header]
                 self.write_and_upload(
                     path="https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/noti_action.csv",
                     upload_file="noti_action.csv",
@@ -86,12 +90,20 @@ class Maintain:
         r = requests.get(path)
         for i in r.text.split():
             if save_as == "users.txt":
+                if self.__email_list:  # if list not already empty
+                    self.__email_list = []
                 self.__email_list.append(i)
             elif save_as == "intent_list.csv":
+                if self.__intent_list:
+                    self.__intent_list = []
                 self.__intent_list.append(i)
             elif save_as == "recent_search.csv":
+                if self.__recent_search:
+                    self.__recent_search = []
                 self.__recent_search.append(i)
             elif save_as == "noti_action.csv":
+                if self.__noti_action:
+                    self.__noti_action = []
                 self.__noti_action.append(i)
 
     def write_and_upload(self, path, upload_file, data_list: list):

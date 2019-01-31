@@ -81,7 +81,7 @@ class Decide:
             hour_list.remove(hour_list[0])  # remove header
             print(hour_list)
             for i in hour_list:
-                del hour_list[24]  # remove last column
+                del i[24]  # remove last column
             print(hour_list)
             # calculate sum column wise
             for i in hour_list:

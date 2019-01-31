@@ -1,8 +1,16 @@
-import datetime
-
-cur_time = datetime.datetime.now()
-print(cur_time)
-print(cur_time.hour, cur_time.minute)
+list1 = []
+list2 = [7, 0, 1, 2, 3]
+if list1:
+    print("A")
+if list2:
+    print("B")
+del list2[0]
+print(list2)
+# import datetime
+#
+# cur_time = datetime.datetime.now()
+# print(cur_time)
+# print(cur_time.hour, cur_time.minute)
 
 # import re
 #
