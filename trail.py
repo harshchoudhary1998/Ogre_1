@@ -1,11 +1,9 @@
-list1 = []
-list2 = [7, 0, 1, 2, 3]
-if list1:
-    print("A")
-if list2:
-    print("B")
-del list2[0]
-print(list2)
+list1 = [["Asish"], "", ""]
+header = list1[0]
+del list1[0]
+# list1.remove(["Asish"])
+print(list1)
+print(header)
 # import datetime
 #
 # cur_time = datetime.datetime.now()

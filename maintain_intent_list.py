@@ -1,20 +1,3 @@
-"""
-Steps:
-1. Download intent_list.csv and store in intent_list
-2. Download recent_search.csv and store in recent_search
-3. all the categories in the recent_search are to be moved to intent_list with a value = 0,<NO REPETITION>
-4. Clear data of recent_search.csv.
-5. Download noti_action.csv and store in noti_action
-6. for every category in noti_action
-    --> if action is "YES" -> value of this category in intent_list += 1 <but always less than 1>
-    --> if action is "NO" -> value of this category in intent_list -= 1
-7. Clear data of noti_action.csv
-8. Now in intent_list
-    --> remove all the entries where value less than -3
-    --> set value of all the entries =0 where value > 0
-9. Upload all the edited files
-10. remove all downloaded files from local storage.
-"""
 import os
 
 import requests
@@ -45,9 +28,11 @@ class Maintain:
                     for intent_elememnt in self.__intent_list:
                         if element[0] == intent_elememnt[0]:
                             present = True
+                            intent_elememnt[1] = 0
                     if not present:
                         self.__intent_list.append([element[0], 0])
-                self.__recent_search = [recent_search_header]
+
+                self.__recent_search = recent_search_header
                 self.write_and_upload(
                     path="https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/recent_search.csv",
                     upload_file="recent_search.csv",
@@ -58,8 +43,8 @@ class Maintain:
                 "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/noti_action.csv",
                 "noti_action.csv")
 
-            noti_action_header = self.__noti_action[0]
-            del self.__noti_action[0]  # save header
+            noti_action_header = self.__noti_action[0]  # points to a list at index 0
+            del self.__noti_action[0]  # save header and remove from list
             if self.__noti_action:  # if list not empty
                 for element in self.__noti_action:
                     i = 0
@@ -73,7 +58,7 @@ class Maintain:
                             else:
                                 del self.__intent_list[i]  # remove value at index i
                         i += 1
-                self.__noti_action = [noti_action_header]
+                self.__noti_action = noti_action_header
                 self.write_and_upload(
                     path="https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/noti_action.csv",
                     upload_file="noti_action.csv",
@@ -90,27 +75,52 @@ class Maintain:
         r = requests.get(path)
         for i in r.text.split():
             if save_as == "users.txt":
-                if self.__email_list:  # if list not already empty
+                if self.__email_list:  # if list is not empty
                     self.__email_list = []
                 self.__email_list.append(i)
             elif save_as == "intent_list.csv":
                 if self.__intent_list:
                     self.__intent_list = []
-                self.__intent_list.append(i)
+                self.__intent_list.append([i.split(",")[0], int(i.split(",")[1])])
+
             elif save_as == "recent_search.csv":
                 if self.__recent_search:
                     self.__recent_search = []
-                self.__recent_search.append(i)
+                self.__recent_search.append(i.split(","))
             elif save_as == "noti_action.csv":
                 if self.__noti_action:
                     self.__noti_action = []
-                self.__noti_action.append(i)
+                self.__noti_action.append(i.split(","))
 
     def write_and_upload(self, path, upload_file, data_list: list):
         with open(upload_file, "w") as fle:
-            for line in data_list:
-                str1 = ','.join(line)
-                fle.write(str1)
+            if upload_file == "intent_list.csv":
+                for line in data_list:
+                    str1 = ','.join(line)
+                    fle.write(str1 + "\n")
+            else:
+                fle.write(",".join(data_list) + "\n")
+
         files = {'file': open(upload_file, "rb")}
         response = requests.post(path, files=files)
         print(response.text)
+        files["file"].close()
+
+
+"""
+Steps:
+1. Download intent_list.csv and store in intent_list
+2. Download recent_search.csv and store in recent_search
+3. all the categories in the recent_search are to be moved to intent_list with a value = 0,<NO REPETITION>
+4. Clear data of recent_search.csv.
+5. Download noti_action.csv and store in noti_action
+6. for every category in noti_action
+    --> if action is "YES" -> value of this category in intent_list += 1 <but always less than 1>
+    --> if action is "NO" -> value of this category in intent_list -= 1
+7. Clear data of noti_action.csv
+8. Now in intent_list
+    --> remove all the entries where value less than -3
+    --> set value of all the entries =0 where value > 0
+9. Upload all the edited files
+10. remove all downloaded files from local storage.
+"""
