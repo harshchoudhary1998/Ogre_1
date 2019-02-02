@@ -1,9 +1,22 @@
-list1 = [["Asish"], "", ""]
-header = list1[0]
-del list1[0]
-# list1.remove(["Asish"])
-print(list1)
-print(header)
+# userdata = open("user_data.csv", "r")
+# print(userdata.read().split(",")[0])
+list1 = ["Asish", "Kumar", 32, 000]
+list2 = ["kuch", "Kumar", 32, 000]
+if list1[1:] == list2[1:]:
+    print("same")
+# data = open("token_id.csv", "r")
+# for line in data:
+#     print(line)
+
+# str1 = "asi@gmail@@kk@"
+# list1 = str1.split("@")
+# print(list1)
+# list1 = [["Asish"], "", ""]
+# header = list1[0]
+# del list1[0]
+# # list1.remove(["Asish"])
+# print(list1)
+# print(header)
 # import datetime
 #
 # cur_time = datetime.datetime.now()

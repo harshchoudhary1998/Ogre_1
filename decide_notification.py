@@ -33,23 +33,25 @@ class Decide:
                 "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/intent_list.csv",
                 "intent_list.csv")
             self.download(
-                "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/token_ids.txt",
-                "token_ids.txt")
-            if category in self.__intent_list:
-                # we have to send this notification to this user
-                self.when_to_send(email=email, category=category, message=message, validity=validity)
+                "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/token_id.csv",
+                "token_id.csv")
+            for element in self.__intent_list:
+                if category == element[0]:
+                    # we have to send this notification to this user
+                    self.when_to_send(email=email, category=category, message=message, validity=validity)
 
     def download(self, path, save_as):
         r = requests.get(path)
-        for i in r.text.split():
+        for i in r.text.split():  # here r.text.split() is a list of strings where each string is a line in the file
             if save_as == "users.txt":
-                self.__email_list.append(i)
+                self.__email_list = r.text.split()
+                break
             elif save_as == "intent_list.csv":
-                self.__intent_list.append(i)
-            elif save_as == "token_ids.txt":
+                self.__intent_list.append([i.split(",")[0], int(i.split(",")[1])])
+            elif save_as == "token_id.csv":
                 self.__token_ids.append(i)
             with open(save_as, 'w') as fle:
-                fle.writelines(i)
+                fle.write(i + "\n")
 
     def when_to_send(self, email, category, message, validity):
         # use ML to decide best time to send the notification to the user
@@ -76,7 +78,7 @@ class Decide:
         sum_list = [0] * 24
         with open("active_hours.csv", "r") as hour_file:
             for i in hour_file:
-                hour_list.append(i)
+                hour_list.append([int(k) for k in i.split(",")])
             print(hour_list)
             hour_list.remove(hour_list[0])  # remove header
             print(hour_list)
@@ -100,36 +102,42 @@ class Decide:
                 maximum = max(sum_list[time_list[0]:expiry_hrs])
 
             i = time_list[0]
-            while (sum_list[i] != maximum) and (i <= 24):
+            while (sum_list[i] != maximum) and (i <= 23):
                 i += 1
-            if i > 24:
+            if i > 23:
                 i = 0
                 while (sum_list[i] != maximum) and (i <= expiry_hrs):
                     i += 1
             # i holds the hrs value at which we have to send this notification
             self.download(
-                "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/token_ids.txt",
-                "token_ids.txt")
-            with open("token_ids.txt", "r") as token_file:
-                data = token_file.read()
+                "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/token_id.csv",
+                "token_id.csv")
+            token_file = open("token_id.csv", "r")
+
             if i == time_list[0]:
                 # send now
-                for line in data:
-                    for id_1 in line:
-                        print(id)
-                        result = push_service.notify_single_device(id_1, category, message)
-                        print(result)
+                for token in token_file:
+                    print(id)
+                    result = push_service.notify_single_device(token, category, message)
+                    # message_email also need to be checked and send
+                    print(result)
             else:
                 # update in file
+                self.download(
+                    "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/userdata.csv",
+                    "userdata.csv")
+                userdata = open("userdata.csv", "r")
+                mobile_number = userdata.read().split()[0]
 
                 self.download("https://storage.googleapis.com/ecommercenotify.appspot.com/noti_to_send.csv",
                               "noti_to_send.csv")
-                # --> token_id,category,message,time_to_send_at
+                # --> token_id,category,message,time_to_send_at,email,mobile_number
 
-                for line in data:
+                for line in token_file:
                     with open("noti_to_send.csv", "a") as noti_to_send_file:
-                        noti_to_send_file.write(",".join([line, category, message, i]))
+                        noti_to_send_file.write(",".join([line, category, message, i, email, mobile_number]))
                 files = {'file': open("noti_to_send.csv", "rb")}
                 response = requests.post("https://storage.googleapis.com/ecommercenotify.appspot.com/noti_to_send.csv",
                                          files=files)
                 print(response.text)
+            token_file.close()

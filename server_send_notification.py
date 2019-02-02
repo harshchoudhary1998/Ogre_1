@@ -16,7 +16,8 @@ push_service = FCMNotification(
     api_key="AAAA_-yO3Ds:APA91bHZQC8mkZO_duCypk_8FBJeC14szbuP_iFviyCveO13za1MmS3fPm1paWz42EB44_ZbAjbmih7KYF5Lfry0GCD9zLqJD8rlD8pyhUgGh-ANS3oTkIfbw2ol7fJq28s9e8XDJCPF")
 num = 0
 while True:
-    # --> token_id,category,message,time_to_send_at
+    list1 = []
+    # --> token_id,category,message,time_to_send_at,email,mob_no
     print("INSIDE WHILE TRUE======================================================")
     cur_time = datetime.datetime.now()
 
@@ -42,10 +43,22 @@ while True:
             i = i.split(",")
             print("This is i", i)
             if (int(i[3].split(":")[0]) == cur_time.hour) and (int(i[3].split(":")[1]) < cur_time.minute + 3):
-                # send now and delete this row
+                # send now and skip this row in rewriting
+                email_message_send = True
+                for item in list1:
+                    if item[1:] == i[1:]:
+                        # do not send email and message
+                        email_message_send = False
+                if email_message_send:
+                    list1.append(i)
+                    from Send_SMS_EMAIL import Send_sms_email
+
+                    s = Send_sms_email()
+                    s.send_email_message(mob=i[5], email=i[4])
                 print(i[0])  # print token id
                 try:
                     result = push_service.notify_single_device(i[0], str(i[2]), str(i[1]))
+                    # message_email check and send
                     print(result)
                 except:
                     print("Sorry! Firebase server has terminated connection with the mobile device.")
