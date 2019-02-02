@@ -19,13 +19,7 @@ class Send_sms_email:
         }
         return requests.post(reqUrl, req_params)
 
-    def send_email_message(self, mob: str, email: str):
-        URL = 'http://www.way2sms.com/api/v1/sendCampaign'
-
-        response = self.sendPostRequest(URL, 'KM3QG6OS8HZTWIC5B4WOLYUEAMUFFJWZ', 'ZI79PXQWMT3QMG3F', 'stage', mob,
-                                        'www.way2sms.com/api/v1/createSenderId', 'Hello')
-        print(response.text)
-
+    def send_email(self, email: str, category: str, message: str):
         s = smtplib.SMTP('smtp.gmail.com', 587)  # creates SMTP session
         s.starttls()  # start TLS for security
 
@@ -34,10 +28,17 @@ class Send_sms_email:
         receiver_email = email
 
         s.login(sender_email, sender_password)  # Authentication
-        message = "OGREs are testing to send mail to you."  # message to be sent
-        s.sendmail(sender_email, receiver_email, message)  # sending the mail
+        # message = "OGREs are testing to send mail to you."  # message to be sent
+        s.sendmail(sender_email, receiver_email, category + "\n" + message)  # sending the mail
 
         s.quit()  # terminating the session
+
+    def send_message(self, mob: str, category: str, message: str):
+        URL = 'http://www.way2sms.com/api/v1/sendCampaign'
+
+        response = self.sendPostRequest(URL, 'KM3QG6OS8HZTWIC5B4WOLYUEAMUFFJWZ', 'ZI79PXQWMT3QMG3F', 'stage', mob,
+                                        'www.way2sms.com/api/v1/createSenderId', category + "\n" + message)
+        print(response.text)
 
 
 # ******************Send an message(25 messages limit)******************************

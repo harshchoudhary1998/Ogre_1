@@ -79,6 +79,8 @@ class Maintain:
                     self.__email_list = []
                 self.__email_list.append(i)
             elif save_as == "intent_list.csv":
+                if i == "Category,Value":
+                    continue
                 if self.__intent_list:
                     self.__intent_list = []
                 self.__intent_list.append([i.split(",")[0], int(i.split(",")[1])])
@@ -96,7 +98,7 @@ class Maintain:
         with open(upload_file, "w") as fle:
             if upload_file == "intent_list.csv":
                 for line in data_list:
-                    str1 = ','.join(line)
+                    str1 = ','.join(str(line))
                     fle.write(str1 + "\n")
             else:
                 fle.write(",".join(data_list) + "\n")
@@ -124,3 +126,6 @@ Steps:
 9. Upload all the edited files
 10. remove all downloaded files from local storage.
 """
+#
+# obj1 = Maintain()
+# obj1.maintain_intent_list()

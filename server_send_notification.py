@@ -16,6 +16,12 @@ push_service = FCMNotification(
     api_key="AAAA_-yO3Ds:APA91bHZQC8mkZO_duCypk_8FBJeC14szbuP_iFviyCveO13za1MmS3fPm1paWz42EB44_ZbAjbmih7KYF5Lfry0GCD9zLqJD8rlD8pyhUgGh-ANS3oTkIfbw2ol7fJq28s9e8XDJCPF")
 num = 0
 while True:
+    if datetime.datetime.now().hour == 12 or datetime.datetime.now().hour == 00:
+        from maintain_intent_list import Maintain
+
+        obj1 = Maintain()
+        obj1.maintain_intent_list()
+
     list1 = []
     # --> token_id,category,message,time_to_send_at,email,mob_no
     print("INSIDE WHILE TRUE======================================================")
@@ -51,10 +57,23 @@ while True:
                         email_message_send = False
                 if email_message_send:
                     list1.append(i)
+                    intent_file = requests.get(
+                        "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + i[4] + "/intent_list.csv")
+                    intent_file_data = intent_file.text.split()
                     from Send_SMS_EMAIL import Send_sms_email
-
                     s = Send_sms_email()
-                    s.send_email_message(mob=i[5], email=i[4])
+
+                    for item in intent_file_data:
+                        if i[1] == item.split(",")[0]:
+                            if item.split(",")[1] == 0:
+                                # send email and message
+                                s.send_email(email=i[4], category=i[1], message=i[2])
+                                s.send_message(mob=i[5], category=i[1], message=i[2])
+                            elif item.split(",")[1] == -1:
+                                # send email only
+                                s.send_message(mob=i[5], category=i[1], message=i[2])
+                            # else by default push notification is already being sent
+
                 print(i[0])  # print token id
                 try:
                     result = push_service.notify_single_device(i[0], str(i[2]), str(i[1]))

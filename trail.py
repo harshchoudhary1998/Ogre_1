@@ -1,9 +1,21 @@
+from pyfcm import FCMNotification
+
+push_service = FCMNotification(
+    api_key="AAAA_-yO3Ds:APA91bHZQC8mkZO_duCypk_8FBJeC14szbuP_iFviyCveO13za1MmS3fPm1paWz42EB44_ZbAjbmih7KYF5Lfry0GCD9zLqJD8rlD8pyhUgGh-ANS3oTkIfbw2ol7fJq28s9e8XDJCPF")
+token = "epEfc5gn7KM:APA91bF_yKx0YWZUmon46JyEHpd20xYGjLOEFa03FvxtTnZGEU8GvQ9a8stPI1Qsn18QefhfJWDE2_-lTp6G2Cov5y612ZVXeP3ecN1J3woRfRyzTEiGUI7cpihHMArZOGQ2dk22ttzm"
+result = push_service.notify_single_device(token, "Hello", "hiiiii")
+print(result)
+
+# [6205036741361962480]
+# [8748947870327364814]
+# with open("user_data.csv", "r") as hour_file:
+#     # print(hour_file.read().split()[0])
+#     del hour_file.read().split()[0] # remove header
+#     print(hour_file.read())
 # userdata = open("user_data.csv", "r")
 # print(userdata.read().split(",")[0])
-list1 = ["Asish", "Kumar", 32, 000]
-list2 = ["kuch", "Kumar", 32, 000]
-if list1[1:] == list2[1:]:
-    print("same")
+#
+
 # data = open("token_id.csv", "r")
 # for line in data:
 #     print(line)

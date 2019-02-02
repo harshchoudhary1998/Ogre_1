@@ -47,6 +47,8 @@ class Decide:
                 self.__email_list = r.text.split()
                 break
             elif save_as == "intent_list.csv":
+                if i == "Category,Value":
+                    continue
                 self.__intent_list.append([i.split(",")[0], int(i.split(",")[1])])
             elif save_as == "token_id.csv":
                 self.__token_ids.append(i)
@@ -67,7 +69,7 @@ class Decide:
         6. download token_id.txt of the user
         7. now download the noti_to_send.csv file from outside users folder in the firebase
         8. add all the token_ids of the current user in the following format:
-                --> token_id,category,message,time_to_send_at
+                --> token_id,category,message,time_to_send_at,email,mob_no
         9. upload back the noti_to_send.csv file with updated values
 
         """
@@ -75,13 +77,19 @@ class Decide:
         self.download("https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/active_hours.csv",
                       "active_hours.csv")
         hour_list = []
+        hour_list1 = []
         sum_list = [0] * 24
         with open("active_hours.csv", "r") as hour_file:
             for i in hour_file:
-                hour_list.append([int(k) for k in i.split(",")])
+                hour_list1.append(i.split(","))
+
+            hour_list1.remove(hour_list1[0])  # remove header
+            print(hour_list1)
+            for i in hour_list1:
+                print(i)
+                hour_list.append([int(k) for k in i])
             print(hour_list)
-            hour_list.remove(hour_list[0])  # remove header
-            print(hour_list)
+            # print(hour_list)
             for i in hour_list:
                 del i[24]  # remove last column
             print(hour_list)
@@ -93,11 +101,14 @@ class Decide:
             time_list = [cur_time.hour, cur_time.minute]
             expiry_min = (time_list[1] + validity[1]) % 60
             expiry_hrs = (time_list[0] + validity[0] + ((time_list[1] + validity[1]) // 60)) % 24
+            print(expiry_hrs)
             # expiry_hrs bj k expiry_min tk to bhejna hi pdega
-            if expiry_hrs <= time_list[0]:
+            if expiry_hrs < time_list[0]:
                 maximum1 = max(sum_list[time_list[0]:24])
                 maximum2 = max(sum_list[0:expiry_hrs + 1])
                 maximum = max([maximum1, maximum2])
+            elif expiry_hrs == time_list[0]:
+                maximum = sum_list[expiry_hrs]
             else:
                 maximum = max(sum_list[time_list[0]:expiry_hrs])
 
@@ -118,7 +129,9 @@ class Decide:
                 # send now
                 for token in token_file:
                     print(id)
-                    result = push_service.notify_single_device(token, category, message)
+                    # token = "epEfc5gn7KM:APA91bF_yKx0YWZUmon46JyEHpd20xYGjLOEFa03FvxtTnZGEU8GvQ9a8stPI1Qsn18QefhfJWDE2_-lTp6G2Cov5y612ZVXeP3ecN1J3woRfRyzTEiGUI7cpihHMArZOGQ2dk22ttzm"
+                    print(token)
+                    result = push_service.notify_single_device(token.split(",")[0], category, message)
                     # message_email also need to be checked and send
                     print(result)
             else:
@@ -135,9 +148,14 @@ class Decide:
 
                 for line in token_file:
                     with open("noti_to_send.csv", "a") as noti_to_send_file:
-                        noti_to_send_file.write(",".join([line, category, message, i, email, mobile_number]))
+                        noti_to_send_file.write(
+                            ",".join([line.split(",")[0], category, message, i, email, mobile_number]))
                 files = {'file': open("noti_to_send.csv", "rb")}
                 response = requests.post("https://storage.googleapis.com/ecommercenotify.appspot.com/noti_to_send.csv",
                                          files=files)
                 print(response.text)
             token_file.close()
+
+#
+# obj = Decide()
+# obj.whom_to_send("message", "Electronics", [00, 11])
