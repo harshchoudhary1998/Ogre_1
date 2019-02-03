@@ -7,7 +7,6 @@ import requests
 
 
 class Send_sms_email:
-
     def sendPostRequest(self, reqUrl, apiKey, secretKey, useType, phoneNo, senderId, textMessage):
         req_params = {
             'apikey': apiKey,

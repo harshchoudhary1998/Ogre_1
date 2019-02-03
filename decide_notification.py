@@ -47,15 +47,18 @@ class Decide:
                 self.__email_list = r.text.split()
                 break
             elif save_as == "intent_list.csv":
+                print(i)
                 if i == "Category,Value":
                     continue
+                print(i)
                 self.__intent_list.append([i.split(",")[0], int(i.split(",")[1])])
             elif save_as == "token_id.csv":
-                self.__token_ids.append(i)
+                self.__token_ids.append(i.split(",")[0])
             with open(save_as, 'w') as fle:
                 fle.write(i + "\n")
 
     def when_to_send(self, email, category, message, validity):
+        print("Inside when_to_send")
         # use ML to decide best time to send the notification to the user
         """
         1. download active_hours.csv
@@ -84,6 +87,7 @@ class Decide:
                 hour_list1.append(i.split(","))
 
             hour_list1.remove(hour_list1[0])  # remove header
+            print("Hourlist 1")
             print(hour_list1)
             for i in hour_list1:
                 print(i)
@@ -128,6 +132,37 @@ class Decide:
             if i == time_list[0]:
                 # send now
                 for token in token_file:
+
+                    # ----------------------------------------------------------------
+                    self.download(
+                        "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/userdata.csv",
+                        "userdata.csv")
+                    userdata = open("userdata.csv", "r")
+                    # mobile_number = int(userdata.read().split("\n")[0].split(",")[0])
+                    mobile_number = int(userdata.read().split()[0].split(",")[0])
+                    intent_file = requests.get(
+                        "https://storage.googleapis.com/ecommercenotify.appspot.com/users/" + email + "/intent_list.csv")
+                    intent_file_data = intent_file.text.split()
+                    from Send_SMS_EMAIL import Send_sms_email
+                    s = Send_sms_email()
+                    print(mobile_number)
+                    print(email)
+
+                    for item in intent_file_data:
+                        if category == item.split(",")[0]:
+                            print("Line 150---inside if category")
+                            print(item.split(",")[1])
+                            if int(item.split(",")[1]) == 0:
+                                print("Line 152---inside if itemsplit")
+                                # send email and message
+                                s.send_email(email=email, category=category, message=message)
+                                s.send_message(mob=mobile_number, category=category, message=message)
+                            elif int(item.split(",")[1]) == -1:
+                                # send email only
+                                s.send_message(mob=mobile_number, category=category, message=message)
+                            # else by default push notification is already being sent
+                    # --------------------------------------------------------------------
+
                     print(id)
                     # token = "epEfc5gn7KM:APA91bF_yKx0YWZUmon46JyEHpd20xYGjLOEFa03FvxtTnZGEU8GvQ9a8stPI1Qsn18QefhfJWDE2_-lTp6G2Cov5y612ZVXeP3ecN1J3woRfRyzTEiGUI7cpihHMArZOGQ2dk22ttzm"
                     print(token)

@@ -65,11 +65,11 @@ while True:
 
                     for item in intent_file_data:
                         if i[1] == item.split(",")[0]:
-                            if item.split(",")[1] == 0:
+                            if int(item.split(",")[1]) == 0:
                                 # send email and message
                                 s.send_email(email=i[4], category=i[1], message=i[2])
                                 s.send_message(mob=i[5], category=i[1], message=i[2])
-                            elif item.split(",")[1] == -1:
+                            elif int(item.split(",")[1]) == -1:
                                 # send email only
                                 s.send_message(mob=i[5], category=i[1], message=i[2])
                             # else by default push notification is already being sent
